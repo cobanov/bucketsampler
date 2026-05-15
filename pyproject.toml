@@ -5,10 +5,11 @@ build-backend = "hatchling.build"
 [project]
 name = "bucketsampler"
 version = "0.1.0"
-description = "Aspect ratio bucketing toolkit for diffusion model training."
+description = "Aspect ratio bucketing toolkit for diffusion model training. PyTorch native, DDP correct."
 readme = "README.md"
 requires-python = ">=3.10"
-license = { text = "MIT" }
+license = "MIT"
+license-files = ["LICENSE"]
 authors = [{ name = "Mert Cobanov", email = "mertcobanov@gmail.com" }]
 keywords = [
     "diffusion",
@@ -17,18 +18,21 @@ keywords = [
     "pytorch",
     "training",
     "sdxl",
+    "dataloader",
+    "sampler",
 ]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Typing :: Typed",
 ]
 dependencies = [
     "numpy>=1.26",
@@ -57,7 +61,9 @@ dev = [
 
 [project.urls]
 Homepage = "https://github.com/cobanov/bucketsampler"
+Repository = "https://github.com/cobanov/bucketsampler"
 Issues = "https://github.com/cobanov/bucketsampler/issues"
+Changelog = "https://github.com/cobanov/bucketsampler/releases"
 
 [project.scripts]
 bucketsampler = "bucketsampler.cli:main"
@@ -69,6 +75,19 @@ packages = ["bucketsampler"]
 "bucketsampler/presets/sdxl.toml" = "bucketsampler/presets/sdxl.toml"
 "bucketsampler/presets/sd15.toml" = "bucketsampler/presets/sd15.toml"
 "bucketsampler/presets/novelai.toml" = "bucketsampler/presets/novelai.toml"
+"bucketsampler/py.typed" = "bucketsampler/py.typed"
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "bucketsampler",
+    "tests",
+    "examples",
+    "README.md",
+    "LICENSE",
+    "PLAN.md",
+    "claude.md",
+    "pyproject.toml",
+]
 
 [tool.ruff]
 line-length = 100
@@ -102,7 +121,7 @@ disallow_untyped_defs = false
 disallow_incomplete_defs = false
 
 [[tool.mypy.overrides]]
-module = ["datasets", "datasets.*"]
+module = ["datasets", "datasets.*", "diffusers", "diffusers.*", "safetensors", "safetensors.*"]
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]
