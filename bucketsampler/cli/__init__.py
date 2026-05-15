@@ -1,9 +1,7 @@
-"""Command-line interface scaffolding.
+"""Command-line interface entry point.
 
-Top-level commands are registered against a single typer app. Each command
-lives in its own submodule so they can grow independently (analyzer, cache
-builder, latent precompute, etc., per the milestone plan). For M1, only
-``presets`` and ``version`` are implemented; running with no args prints help.
+Each subcommand lives in its own module under :mod:`bucketsampler.cli`
+and is registered against the shared typer app below.
 """
 
 from __future__ import annotations
@@ -14,6 +12,7 @@ from typing import Any
 import typer
 
 from bucketsampler import __version__
+from bucketsampler.cli.analyze import analyze as _analyze_command
 from bucketsampler.presets import list_presets, load_preset
 
 app = typer.Typer(
@@ -22,6 +21,8 @@ app = typer.Typer(
     no_args_is_help=True,
     add_completion=False,
 )
+
+app.command(name="analyze")(_analyze_command)
 
 
 @app.command()
