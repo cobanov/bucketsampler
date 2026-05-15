@@ -26,19 +26,13 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-__version__ = "0.1.0a1"
+__version__ = "0.1.0a2"
 
-from bucketsampler.cache.latents import (
-    BucketedLatentDataset,
-    LatentManifest,
-    precompute_latents,
-)
 from bucketsampler.cache.metadata import (
     MetadataCache,
     MetadataRow,
     build_metadata_cache,
 )
-from bucketsampler.cache.vae_adapters import VAEEncoder
 from bucketsampler.core.assignment import (
     assign_many,
     assign_many_indices,
@@ -80,6 +74,12 @@ from bucketsampler.presets import (
 )
 
 if TYPE_CHECKING:
+    from bucketsampler.cache.latents import (
+        BucketedLatentDataset,
+        LatentManifest,
+        precompute_latents,
+    )
+    from bucketsampler.cache.vae_adapters import VAEEncoder
     from bucketsampler.torch.dataset import BucketedDataset
     from bucketsampler.torch.sampler import BucketBatchSampler
     from bucketsampler.torch.transforms import BucketResize
@@ -88,6 +88,10 @@ _TORCH_LAZY_EXPORTS = {
     "BucketedDataset": ("bucketsampler.torch.dataset", "BucketedDataset"),
     "BucketBatchSampler": ("bucketsampler.torch.sampler", "BucketBatchSampler"),
     "BucketResize": ("bucketsampler.torch.transforms", "BucketResize"),
+    "BucketedLatentDataset": ("bucketsampler.cache.latents", "BucketedLatentDataset"),
+    "LatentManifest": ("bucketsampler.cache.latents", "LatentManifest"),
+    "precompute_latents": ("bucketsampler.cache.latents", "precompute_latents"),
+    "VAEEncoder": ("bucketsampler.cache.vae_adapters", "VAEEncoder"),
 }
 
 
