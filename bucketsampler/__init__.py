@@ -1,7 +1,21 @@
 """bucketsampler: aspect ratio bucketing for diffusion model training.
 
-This is the framework-agnostic core surface. Presets, the CLI, and the
-PyTorch / HuggingFace adapters extend this top level in later milestones.
+Public API (importable from this package's top level):
+
+    from bucketsampler import (
+        Bucket,
+        BucketSet,
+        FixedBuckets,
+        Strategy,
+        best_bucket,
+        assign_many,
+        load_preset,
+        list_presets,
+    )
+
+Everything else lives under ``bucketsampler.core``, ``bucketsampler.presets``,
+or ``bucketsampler.cli``. PyTorch and HuggingFace integration arrive in later
+milestones and will not be importable from this top-level surface until then.
 """
 
 from __future__ import annotations
@@ -35,6 +49,12 @@ from bucketsampler.exceptions import (
     InvalidPresetError,
     PresetNotFoundError,
 )
+from bucketsampler.presets import (
+    list_presets,
+    load_from_json,
+    load_from_toml,
+    load_preset,
+)
 
 __all__ = [
     "AspectRatioSummary",
@@ -58,6 +78,10 @@ __all__ = [
     "bucket_distribution",
     "crop_loss",
     "crop_loss_summary",
+    "list_presets",
+    "load_from_json",
+    "load_from_toml",
+    "load_preset",
     "log_ar_distance",
     "resize_to_bucket_dims",
     "underutilized_buckets",

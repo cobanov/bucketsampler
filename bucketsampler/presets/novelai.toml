@@ -1,0 +1,41 @@
+# NovelAI-style bucket set, 512 base.
+# Reference: NovelAI v1 aspect ratio bucketing, kohya_ss compatible.
+name = "novelai"
+description = "NovelAI v1 bucket set, target approx 512x512 pixels."
+vae_factor = 8
+
+[[buckets]]
+width = 512
+height = 512
+
+[[buckets]]
+width = 640
+height = 640
+
+[[buckets]]
+width = 576
+height = 576
+
+[[buckets]]
+width = 640
+height = 512
+
+[[buckets]]
+width = 512
+height = 640
+
+[[buckets]]
+width = 768
+height = 512
+
+[[buckets]]
+width = 512
+height = 768
+
+[[buckets]]
+width = 768
+height = 384
+
+[[buckets]]
+width = 384
+height = 768

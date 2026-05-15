@@ -1,0 +1,41 @@
+# SD1.5 bucket set, approximately 512^2 pixels per bucket.
+# Dims are multiples of 64 to play nicely with the SD VAE downsample factor.
+name = "sd15"
+description = "Stable Diffusion 1.5 bucket set, target approx 512x512 pixels."
+vae_factor = 8
+
+[[buckets]]
+width = 512
+height = 512
+
+[[buckets]]
+width = 576
+height = 448
+
+[[buckets]]
+width = 448
+height = 576
+
+[[buckets]]
+width = 640
+height = 384
+
+[[buckets]]
+width = 384
+height = 640
+
+[[buckets]]
+width = 704
+height = 320
+
+[[buckets]]
+width = 320
+height = 704
+
+[[buckets]]
+width = 768
+height = 320
+
+[[buckets]]
+width = 320
+height = 768
