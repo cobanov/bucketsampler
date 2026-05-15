@@ -102,8 +102,7 @@ def precompute(
         captions = captions_file.read_text(encoding="utf-8").splitlines()
         if len(captions) != len(paths):
             typer.echo(
-                f"captions file has {len(captions)} lines but scan found "
-                f"{len(paths)} images",
+                f"captions file has {len(captions)} lines but scan found {len(paths)} images",
                 err=True,
             )
         captions = captions[: len(paths)]
@@ -154,9 +153,7 @@ def _parse_dtype(name: str, torch_mod: Any) -> Any:
     }
     key = name.lower()
     if key not in mapping:
-        raise typer.BadParameter(
-            f"unknown dtype {name!r}; choose one of {sorted(mapping)}"
-        )
+        raise typer.BadParameter(f"unknown dtype {name!r}; choose one of {sorted(mapping)}")
     return mapping[key]
 
 

@@ -2,9 +2,9 @@
 
 A strategy decides which bucket an image gets, given its dimensions. The
 common case is :class:`FixedBuckets`, which uses a predefined
-:class:`BucketSet` and the log-AR nearest-bucket rule. Auto-generated bucket
-sets (k-means in log-AR space, etc.) land in this module as future strategies
-(milestone M4).
+:class:`BucketSet` and the log-AR nearest-bucket rule. Data-derived
+strategies (k-means in log-AR space) live in
+:mod:`bucketsampler.core.auto_bucket`.
 """
 
 from __future__ import annotations

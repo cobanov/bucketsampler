@@ -127,7 +127,7 @@ class BucketedDataset(Dataset[dict[str, Any]]):
 
         Args:
             hf_dataset: A map-style ``datasets.Dataset``. Streaming
-                ``IterableDataset`` is not supported in this milestone.
+                ``IterableDataset`` is not supported yet.
             strategy: Bucket assignment strategy.
             image_column: Column holding the image. PIL, raw bytes
                 (``datasets.Image(decode=False)``), and numpy / torch

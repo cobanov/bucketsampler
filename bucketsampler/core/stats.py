@@ -1,8 +1,9 @@
 """Distribution analysis utilities.
 
-Lightweight summaries that callers (CLI analyzer, notebook users, the auto-
-bucket generator in M4) can use to inspect how a dataset interacts with a
-:class:`BucketSet`. Designed to operate on numpy arrays of dims for speed.
+Lightweight summaries that callers (the CLI analyzer, notebook users,
+the auto-bucket generator) can use to inspect how a dataset interacts
+with a :class:`BucketSet`. Designed to operate on numpy arrays of dims
+for speed.
 """
 
 from __future__ import annotations

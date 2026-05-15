@@ -10,8 +10,6 @@ The core problem: diffusion U-Nets require fixed (H, W) per batch, but real data
 
 **Naming note**: "bucket sampler" also exists in NLP for sequence-length bucketing. This project is specifically for image / diffusion training. Keep that framing in docs and examples.
 
-See `PLAN.md` for the full roadmap and milestones.
-
 ## Tech stack
 
 - **Python**: 3.10+ (use PEP 604 union syntax `X | Y`, structural pattern matching where it helps)
@@ -100,10 +98,9 @@ This is a data utility on the hot path of training. Performance matters.
 ## Common workflows for Claude Code
 
 ### Adding a new bucket strategy
-1. Implement in `bucketsampler/core/strategies.py` as a class with `assign(img_dims) -> Bucket` method
+1. Implement in `bucketsampler/core/strategies.py` (or a sibling module for data-derived strategies) as a class with `assign(width, height) -> Bucket` and `assign_many_indices(dims) -> np.ndarray`
 2. Add to the `Strategy` protocol if introducing a new interface method
 3. Unit tests for assignment correctness + edge cases
-4. Update `PLAN.md` if it's a milestone item
 
 ### Adding a CLI command
 1. Module under `bucketsampler/cli/` (one command per file)
@@ -197,7 +194,7 @@ Body should explain **why**, not just what. Performance commits must include ben
 
 ## When in doubt
 
-1. Check `PLAN.md` for whether the feature is in scope
+1. Check whether the feature matches the project's non-goals (no training loops, no augmentations, no network I/O in core)
 2. Prefer simple, well-tested code over clever optimization
 3. Ask before introducing new dependencies (especially heavy ones)
 4. Frame error messages from the user's perspective, not the implementation's

@@ -24,6 +24,8 @@ before you start training.
 pip install bucketsampler             # core (no torch)
 pip install "bucketsampler[torch]"    # + PyTorch integration
 pip install "bucketsampler[hf]"       # + HuggingFace datasets adapter
+pip install "bucketsampler[cache]"    # + parquet metadata cache
+pip install "bucketsampler[vae]"      # + VAE latent precomputation
 pip install "bucketsampler[analyze]"  # + HTML reports from the analyzer
 ```
 
@@ -271,21 +273,23 @@ See [`examples/`](examples/) for runnable scripts:
 - [`precompute_latents.py`](examples/precompute_latents.py) — VAE precompute + latent training
 - [`ddp_training.py`](examples/ddp_training.py) — distributed training sketch
 
-## Status
+## Development
 
-All milestones shipped:
+```bash
+git clone https://github.com/cobanov/bucketsampler
+cd bucketsampler
+uv venv && uv pip install -e ".[dev]"
 
-- [x] **M1** Core bucketing (`Bucket`, `BucketSet`, assignment, presets)
-- [x] **M2** PyTorch integration (`BucketedDataset`, `BucketBatchSampler`, DDP)
-- [x] **M3** Dataset analyzer CLI (`bucketsampler analyze`)
-- [x] **M4** Auto-bucket generation (`AutoBuckets`, `buckets-from-dataset`)
-- [x] **M5** HuggingFace datasets adapter (`BucketedDataset.from_hf`, map-style)
-- [x] **M6** Metadata cache (`MetadataCache`, `build-cache`)
-- [x] **M7** VAE latent precomputation (`precompute_latents`, `BucketedLatentDataset`)
-- [x] **M8** Examples, GitHub Actions CI, PyPI release
+pytest                              # 313 tests, ~15s on a laptop CPU
+ruff check bucketsampler tests      # lint
+ruff format bucketsampler tests     # autoformat
+mypy bucketsampler                  # strict type check
+```
 
-See [`PLAN.md`](PLAN.md) for the full roadmap.
+Contributions are welcome via pull request. The project follows
+[Conventional Commits](https://www.conventionalcommits.org/) and aims
+for 100% line coverage on `core/`.
 
 ## License
 
-MIT
+MIT, see [`LICENSE`](LICENSE).

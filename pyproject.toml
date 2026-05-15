@@ -84,7 +84,6 @@ include = [
     "examples",
     "README.md",
     "LICENSE",
-    "PLAN.md",
     "claude.md",
     "pyproject.toml",
 ]
