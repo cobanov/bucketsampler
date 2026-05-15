@@ -189,6 +189,66 @@ strategy = FixedBuckets(load_from_toml("my_buckets.toml"))
 JSON is also supported via `load_from_json`. The bundled presets
 (`sdxl`, `sd15`, `novelai`) live in the same format.
 
+## Metadata cache
+
+Header reads are cheap individually but expensive at 100K+ images.
+Cache them once:
+
+```bash
+bucketsampler build-cache data/ --output data.cache.parquet
+```
+
+Then reuse on every subsequent run:
+
+```python
+from bucketsampler import BucketedDataset, FixedBuckets, MetadataCache, load_preset
+
+cache = MetadataCache.load("data.cache.parquet")
+dataset = BucketedDataset(
+    paths=image_paths,
+    strategy=FixedBuckets(load_preset("sdxl")),
+    metadata_cache=cache,
+)
+```
+
+Cache invalidation is automatic per row: files whose `mtime` has
+changed get re-read, new files get added, removed files are dropped.
+Re-run `build-cache --refresh` to refresh in place.
+
+## Precompute VAE latents
+
+Move the VAE forward pass off the training hot path:
+
+```bash
+bucketsampler precompute \
+    data/ \
+    --vae stabilityai/sdxl-vae \
+    --output latents/ \
+    --preset sdxl \
+    --batch-size 8 \
+    --dtype bfloat16
+```
+
+Then train against the precomputed latents:
+
+```python
+from bucketsampler import BucketBatchSampler, BucketedLatentDataset
+from torch.utils.data import DataLoader
+
+dataset = BucketedLatentDataset("latents/")
+sampler = BucketBatchSampler(dataset, batch_size=8)
+loader = DataLoader(dataset, batch_sampler=sampler)
+
+for batch in loader:
+    latents = batch["latents"]   # [B, C, H/8, W/8]
+    captions = batch.get("caption")
+    # ... feed latents straight to your U-Net
+```
+
+Custom VAE? Implement the tiny `VAEEncoder` protocol
+(`downsample_factor`, `latent_channels`, `scale_factor`, `encode`)
+and call `precompute_latents()` directly.
+
 ## CLI cheatsheet
 
 ```bash
@@ -197,18 +257,32 @@ bucketsampler version
 bucketsampler presets [--json]
 bucketsampler analyze <path> --preset sdxl [--json | --html report.html]
 bucketsampler buckets-from-dataset <path> --num 8 --target 1024 [--output buckets.toml] [--compare-to sdxl]
+bucketsampler build-cache <path> --output cache.parquet [--refresh]
+bucketsampler precompute <path> --vae stabilityai/sdxl-vae --output latents/ --preset sdxl
 ```
 
+## Examples
+
+See [`examples/`](examples/) for runnable scripts:
+
+- [`minimal_training_loop.py`](examples/minimal_training_loop.py) — full end-to-end loop
+- [`auto_buckets_inline.py`](examples/auto_buckets_inline.py) — data-driven bucket sets
+- [`hf_dataset.py`](examples/hf_dataset.py) — train from a HuggingFace dataset
+- [`precompute_latents.py`](examples/precompute_latents.py) — VAE precompute + latent training
+- [`ddp_training.py`](examples/ddp_training.py) — distributed training sketch
+
 ## Status
+
+All milestones shipped:
 
 - [x] **M1** Core bucketing (`Bucket`, `BucketSet`, assignment, presets)
 - [x] **M2** PyTorch integration (`BucketedDataset`, `BucketBatchSampler`, DDP)
 - [x] **M3** Dataset analyzer CLI (`bucketsampler analyze`)
 - [x] **M4** Auto-bucket generation (`AutoBuckets`, `buckets-from-dataset`)
 - [x] **M5** HuggingFace datasets adapter (`BucketedDataset.from_hf`, map-style)
-- [ ] **M6** Metadata cache (parquet / sqlite)
-- [ ] **M7** VAE latent precomputation
-- [ ] **M8** Polish, examples, PyPI release
+- [x] **M6** Metadata cache (`MetadataCache`, `build-cache`)
+- [x] **M7** VAE latent precomputation (`precompute_latents`, `BucketedLatentDataset`)
+- [x] **M8** Examples, GitHub Actions CI, PyPI release
 
 See [`PLAN.md`](PLAN.md) for the full roadmap.
 
