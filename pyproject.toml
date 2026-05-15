@@ -52,6 +52,7 @@ dev = [
     "types-pillow",
     "torch>=2.1",
     "matplotlib>=3.7",
+    "datasets>=2",
 ]
 
 [project.urls]
@@ -79,6 +80,7 @@ ignore = ["E501"]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["N802", "N803", "N806"]
+"tests/hf/**" = ["E402", "N802", "N803", "N806"]
 "bucketsampler/cli/**" = ["B008"]
 
 [tool.ruff.format]
@@ -98,6 +100,10 @@ disallow_incomplete_defs = true
 module = ["tests.*"]
 disallow_untyped_defs = false
 disallow_incomplete_defs = false
+
+[[tool.mypy.overrides]]
+module = ["datasets", "datasets.*"]
+ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
