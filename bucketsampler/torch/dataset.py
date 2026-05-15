@@ -1,10 +1,16 @@
 """``BucketedDataset``: a torch.utils.data.Dataset that buckets images.
 
-The dataset delegates to a :class:`_DataSource` (filesystem paths today;
-HuggingFace ``datasets.Dataset`` in the next milestone) for dim reads
-and lazy image opens. The :attr:`bucket_indices` array is the bridge to
-:class:`bucketsampler.torch.BucketBatchSampler`, which uses it to build
-per-bucket index queues.
+The dataset delegates to a :class:`_DataSource` for dim reads and lazy
+image opens. Filesystem paths and HuggingFace ``datasets.Dataset``
+sources are both supported. The :attr:`bucket_indices` array is the
+bridge to :class:`bucketsampler.torch.BucketBatchSampler`, which uses
+it to build per-bucket index queues.
+
+Construct via one of:
+
+  - ``BucketedDataset(paths, strategy, ...)`` (back-compat, paths-based)
+  - ``BucketedDataset.from_paths(paths, strategy, ...)`` (same, explicit)
+  - ``BucketedDataset.from_hf(hf_dataset, strategy, ...)``
 """
 
 from __future__ import annotations
@@ -12,7 +18,7 @@ from __future__ import annotations
 import contextlib
 from collections.abc import Callable, Sequence
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 import torch
@@ -22,6 +28,9 @@ from bucketsampler.core.bucket import Bucket, BucketSet
 from bucketsampler.core.strategies import Strategy
 from bucketsampler.torch._source import _DataSource, _PathSource
 from bucketsampler.torch.transforms import BucketResize
+
+if TYPE_CHECKING:
+    import datasets
 
 
 class BucketedDataset(Dataset[dict[str, Any]]):
@@ -76,6 +85,85 @@ class BucketedDataset(Dataset[dict[str, Any]]):
             transform=transform,
             num_workers=num_workers,
         )
+
+    @classmethod
+    def from_paths(
+        cls,
+        paths: Sequence[str | Path],
+        strategy: Strategy,
+        *,
+        captions: Sequence[str] | None = None,
+        transform: Callable[[torch.Tensor], torch.Tensor] | None = None,
+        num_workers: int = 8,
+    ) -> BucketedDataset:
+        """Construct from a list of image paths. Same as the default constructor."""
+        return cls(
+            paths=paths,
+            strategy=strategy,
+            captions=captions,
+            transform=transform,
+            num_workers=num_workers,
+        )
+
+    @classmethod
+    def from_hf(
+        cls,
+        hf_dataset: datasets.Dataset,
+        strategy: Strategy,
+        *,
+        image_column: str = "image",
+        caption_column: str | None = None,
+        transform: Callable[[torch.Tensor], torch.Tensor] | None = None,
+        num_workers: int = 8,
+    ) -> BucketedDataset:
+        """Construct from a HuggingFace ``datasets.Dataset``.
+
+        Args:
+            hf_dataset: A map-style ``datasets.Dataset``. Streaming
+                ``IterableDataset`` is not supported in this milestone.
+            strategy: Bucket assignment strategy.
+            image_column: Column holding the image. PIL, raw bytes
+                (``datasets.Image(decode=False)``), and numpy / torch
+                tensors are all accepted.
+            caption_column: Optional column holding captions.
+            transform: Optional tensor transform (same semantics as the
+                path-based constructor).
+            num_workers: Threads for the dim-read pass at construction.
+
+        Returns:
+            A :class:`BucketedDataset` that pulls images from the wrapped
+            HF dataset on demand.
+
+        Raises:
+            ImportError: If the ``datasets`` package is not installed.
+
+        Example:
+            >>> from datasets import Dataset  # doctest: +SKIP
+            >>> hf = Dataset.from_dict({"image": pil_list, "text": captions})  # doctest: +SKIP
+            >>> ds = BucketedDataset.from_hf(  # doctest: +SKIP
+            ...     hf, strategy, image_column="image", caption_column="text",
+            ... )
+        """
+        try:
+            from bucketsampler.hf.adapter import _HFSource
+        except ImportError as exc:
+            raise ImportError(
+                "BucketedDataset.from_hf requires the datasets package. "
+                "Install with: pip install bucketsampler[hf]"
+            ) from exc
+        source = _HFSource(
+            hf_dataset,
+            image_column=image_column,
+            caption_column=caption_column,
+        )
+        obj = cls.__new__(cls)
+        obj._init_with_source(
+            source=source,
+            strategy=strategy,
+            transform=transform,
+            num_workers=num_workers,
+        )
+        return obj
 
     def _init_with_source(
         self,
