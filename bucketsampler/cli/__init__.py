@@ -14,6 +14,8 @@ import typer
 from bucketsampler import __version__
 from bucketsampler.cli.analyze import analyze as _analyze_command
 from bucketsampler.cli.buckets import buckets_from_dataset as _buckets_from_dataset
+from bucketsampler.cli.cache import build_cache as _build_cache_command
+from bucketsampler.cli.precompute import precompute as _precompute_command
 from bucketsampler.presets import list_presets, load_preset
 
 app = typer.Typer(
@@ -25,6 +27,8 @@ app = typer.Typer(
 
 app.command(name="analyze")(_analyze_command)
 app.command(name="buckets-from-dataset")(_buckets_from_dataset)
+app.command(name="build-cache")(_build_cache_command)
+app.command(name="precompute")(_precompute_command)
 
 
 @app.command()

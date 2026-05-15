@@ -28,6 +28,17 @@ from typing import TYPE_CHECKING, Any
 
 __version__ = "0.1.0"
 
+from bucketsampler.cache.latents import (
+    BucketedLatentDataset,
+    LatentManifest,
+    precompute_latents,
+)
+from bucketsampler.cache.metadata import (
+    MetadataCache,
+    MetadataRow,
+    build_metadata_cache,
+)
+from bucketsampler.cache.vae_adapters import VAEEncoder
 from bucketsampler.core.assignment import (
     assign_many,
     assign_many_indices,
@@ -105,6 +116,7 @@ __all__ = [
     "BucketSamplerError",
     "BucketSet",
     "BucketedDataset",
+    "BucketedLatentDataset",
     "CropLossSummary",
     "DuplicateBucketError",
     "EmptyBucketSetError",
@@ -112,8 +124,12 @@ __all__ = [
     "ImageTooSmallError",
     "InvalidBucketError",
     "InvalidPresetError",
+    "LatentManifest",
+    "MetadataCache",
+    "MetadataRow",
     "PresetNotFoundError",
     "Strategy",
+    "VAEEncoder",
     "__version__",
     "aspect_ratio_summary",
     "assign_many",
@@ -121,6 +137,7 @@ __all__ = [
     "best_bucket",
     "bucket_distribution",
     "bucket_set_to_toml",
+    "build_metadata_cache",
     "crop_loss",
     "crop_loss_summary",
     "generate_buckets",
@@ -129,6 +146,7 @@ __all__ = [
     "load_from_toml",
     "load_preset",
     "log_ar_distance",
+    "precompute_latents",
     "resize_to_bucket_dims",
     "underutilized_buckets",
 ]

@@ -15,7 +15,7 @@ from __future__ import annotations
 from collections.abc import Sequence
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
-from typing import Protocol, runtime_checkable
+from typing import Any, Protocol, runtime_checkable
 
 import numpy as np
 from PIL import Image
@@ -68,6 +68,7 @@ class _PathSource:
         paths: Sequence[str | Path],
         *,
         captions: Sequence[str] | None = None,
+        metadata_cache: Any | None = None,
     ) -> None:
         if len(paths) == 0:
             raise ValueError("at least one path is required")
@@ -77,11 +78,16 @@ class _PathSource:
             )
         self.paths: list[Path] = [Path(p) for p in paths]
         self._captions: list[str] | None = list(captions) if captions is not None else None
+        self._cache = metadata_cache
 
     def __len__(self) -> int:
         return len(self.paths)
 
     def read_dim(self, idx: int) -> tuple[int, int]:
+        if self._cache is not None:
+            dim = self._cache.get_dim(self.paths[idx])
+            if dim is not None:
+                return (int(dim[0]), int(dim[1]))
         with Image.open(self.paths[idx]) as img:
             return (int(img.width), int(img.height))
 

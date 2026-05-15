@@ -77,8 +77,13 @@ class BucketedDataset(Dataset[dict[str, Any]]):
         captions: Sequence[str] | None = None,
         transform: Callable[[torch.Tensor], torch.Tensor] | None = None,
         num_workers: int = 8,
+        metadata_cache: Any | None = None,
     ) -> None:
-        source = _PathSource(paths, captions=captions)
+        source = _PathSource(
+            paths,
+            captions=captions,
+            metadata_cache=metadata_cache,
+        )
         self._init_with_source(
             source=source,
             strategy=strategy,
@@ -95,6 +100,7 @@ class BucketedDataset(Dataset[dict[str, Any]]):
         captions: Sequence[str] | None = None,
         transform: Callable[[torch.Tensor], torch.Tensor] | None = None,
         num_workers: int = 8,
+        metadata_cache: Any | None = None,
     ) -> BucketedDataset:
         """Construct from a list of image paths. Same as the default constructor."""
         return cls(
@@ -103,6 +109,7 @@ class BucketedDataset(Dataset[dict[str, Any]]):
             captions=captions,
             transform=transform,
             num_workers=num_workers,
+            metadata_cache=metadata_cache,
         )
 
     @classmethod
