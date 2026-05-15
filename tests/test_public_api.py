@@ -32,3 +32,10 @@ def test_quickstart_example():
     assert isinstance(bucket, bucketsampler.Bucket)
     # 1280x720 is ~16:9, closest SDXL bucket should be wide
     assert bucket.aspect_ratio > 1.0
+
+
+def test_unknown_attribute_raises():
+    import pytest
+
+    with pytest.raises(AttributeError, match="no attribute 'NonExistent'"):
+        bucketsampler.NonExistent  # noqa: B018
