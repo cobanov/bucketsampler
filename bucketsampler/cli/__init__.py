@@ -13,6 +13,7 @@ import typer
 
 from bucketsampler import __version__
 from bucketsampler.cli.analyze import analyze as _analyze_command
+from bucketsampler.cli.buckets import buckets_from_dataset as _buckets_from_dataset
 from bucketsampler.presets import list_presets, load_preset
 
 app = typer.Typer(
@@ -23,6 +24,7 @@ app = typer.Typer(
 )
 
 app.command(name="analyze")(_analyze_command)
+app.command(name="buckets-from-dataset")(_buckets_from_dataset)
 
 
 @app.command()
