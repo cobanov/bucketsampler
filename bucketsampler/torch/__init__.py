@@ -8,6 +8,7 @@ install still works for core/ users.
 
 from __future__ import annotations
 
+from bucketsampler.torch.dataset import BucketedDataset
 from bucketsampler.torch.transforms import BucketResize
 
-__all__ = ["BucketResize"]
+__all__ = ["BucketResize", "BucketedDataset"]
