@@ -7,18 +7,24 @@ Public API (importable from this package's top level):
         BucketSet,
         FixedBuckets,
         Strategy,
+        BucketedDataset,
+        BucketBatchSampler,
+        BucketResize,
         best_bucket,
         assign_many,
         load_preset,
         list_presets,
     )
 
-Everything else lives under ``bucketsampler.core``, ``bucketsampler.presets``,
-or ``bucketsampler.cli``. PyTorch and HuggingFace integration arrive in later
-milestones and will not be importable from this top-level surface until then.
+PyTorch-backed names (``BucketedDataset``, ``BucketBatchSampler``,
+``BucketResize``) are imported lazily so that a torch-free install can still
+use the core surface. Attempting to access one of those names without torch
+installed raises a clear ``ImportError``.
 """
 
 from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any
 
 __version__ = "0.1.0"
 
@@ -56,11 +62,41 @@ from bucketsampler.presets import (
     load_preset,
 )
 
+if TYPE_CHECKING:
+    from bucketsampler.torch.dataset import BucketedDataset
+    from bucketsampler.torch.sampler import BucketBatchSampler
+    from bucketsampler.torch.transforms import BucketResize
+
+_TORCH_LAZY_EXPORTS = {
+    "BucketedDataset": ("bucketsampler.torch.dataset", "BucketedDataset"),
+    "BucketBatchSampler": ("bucketsampler.torch.sampler", "BucketBatchSampler"),
+    "BucketResize": ("bucketsampler.torch.transforms", "BucketResize"),
+}
+
+
+def __getattr__(name: str) -> Any:
+    if name in _TORCH_LAZY_EXPORTS:
+        module_name, attr_name = _TORCH_LAZY_EXPORTS[name]
+        try:
+            import importlib
+
+            module = importlib.import_module(module_name)
+        except ImportError as exc:
+            raise ImportError(
+                f"{name!r} requires PyTorch. Install with: pip install bucketsampler[torch]"
+            ) from exc
+        return getattr(module, attr_name)
+    raise AttributeError(f"module 'bucketsampler' has no attribute {name!r}")
+
+
 __all__ = [
     "AspectRatioSummary",
     "Bucket",
+    "BucketBatchSampler",
+    "BucketResize",
     "BucketSamplerError",
     "BucketSet",
+    "BucketedDataset",
     "CropLossSummary",
     "DuplicateBucketError",
     "EmptyBucketSetError",
