@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "bucketsampler"
-version = "0.1.0"
+version = "0.1.0a1"
 description = "Aspect ratio bucketing toolkit for diffusion model training. PyTorch native, DDP correct."
 readme = "README.md"
 requires-python = ">=3.10"
