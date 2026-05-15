@@ -23,6 +23,7 @@ before you start training.
 ```bash
 pip install bucketsampler             # core (no torch)
 pip install "bucketsampler[torch]"    # + PyTorch integration
+pip install "bucketsampler[hf]"       # + HuggingFace datasets adapter
 pip install "bucketsampler[analyze]"  # + HTML reports from the analyzer
 ```
 
@@ -64,6 +65,30 @@ bucketsampler analyze data/ --preset sdxl --html report.html
 The report shows readable / broken counts, AR distribution, per-bucket counts,
 underutilized buckets (so you know what to drop), and outliers (extreme ARs
 that match no bucket well, often a sign of bad data).
+
+## HuggingFace datasets
+
+Already have a `datasets.Dataset` of images and captions? Skip the
+file-list step:
+
+```python
+from datasets import load_dataset
+from bucketsampler import BucketedDataset, FixedBuckets, load_preset
+
+hf = load_dataset("lambdalabs/pokemon-blip-captions", split="train")
+
+dataset = BucketedDataset.from_hf(
+    hf,
+    FixedBuckets(load_preset("sdxl")),
+    image_column="image",
+    caption_column="text",
+)
+```
+
+The adapter accepts PIL columns (the common case), raw bytes
+(`datasets.Image(decode=False)`), and numpy / torch tensor columns. CHW
+vs HWC is auto-detected by the small-channel axis. Streaming
+(`IterableDataset`) is not yet supported, pass a map-style dataset.
 
 ## DDP
 
@@ -180,7 +205,7 @@ bucketsampler buckets-from-dataset <path> --num 8 --target 1024 [--output bucket
 - [x] **M2** PyTorch integration (`BucketedDataset`, `BucketBatchSampler`, DDP)
 - [x] **M3** Dataset analyzer CLI (`bucketsampler analyze`)
 - [x] **M4** Auto-bucket generation (`AutoBuckets`, `buckets-from-dataset`)
-- [ ] **M5** HuggingFace datasets adapter
+- [x] **M5** HuggingFace datasets adapter (`BucketedDataset.from_hf`, map-style)
 - [ ] **M6** Metadata cache (parquet / sqlite)
 - [ ] **M7** VAE latent precomputation
 - [ ] **M8** Polish, examples, PyPI release
