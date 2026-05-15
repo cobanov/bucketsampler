@@ -8,6 +8,11 @@ forward pass entirely.
 Only SD-family VAEs are wired up by default (via diffusers). Custom
 encoders can be used programmatically by calling
 :func:`bucketsampler.cache.latents.precompute_latents` directly.
+
+Torch and torch-dependent helpers (BucketedDataset, precompute_latents,
+SDVAEEncoder) are imported inside the command body so importing this
+module does not require ``pip install bucketsampler[torch]``; only
+running the command does.
 """
 
 from __future__ import annotations
@@ -15,15 +20,12 @@ from __future__ import annotations
 import sys
 from collections.abc import Callable
 from pathlib import Path
+from typing import Any
 
-import torch
 import typer
 
-from bucketsampler import FixedBuckets
-from bucketsampler.cache.latents import precompute_latents
 from bucketsampler.cli.analyze import scan_images
 from bucketsampler.presets import list_presets, load_from_json, load_from_toml, load_preset
-from bucketsampler.torch import BucketedDataset
 
 
 def precompute(
@@ -62,6 +64,19 @@ def precompute(
     ),
 ) -> None:
     """Encode an image directory through a VAE and persist per-bucket latents."""
+    try:
+        import torch
+
+        from bucketsampler import FixedBuckets
+        from bucketsampler.cache.latents import precompute_latents
+        from bucketsampler.cache.vae_adapters.sd import SDVAEEncoder
+        from bucketsampler.torch import BucketedDataset
+    except ImportError as exc:
+        raise typer.BadParameter(
+            "the precompute command requires torch and the [vae] extra; "
+            "install with: pip install 'bucketsampler[vae]'"
+        ) from exc
+
     if bool(preset) == bool(bucket_config):
         raise typer.BadParameter(
             "pass exactly one of --preset "
@@ -87,7 +102,8 @@ def precompute(
         captions = captions_file.read_text(encoding="utf-8").splitlines()
         if len(captions) != len(paths):
             typer.echo(
-                f"captions file has {len(captions)} lines but scan found {len(paths)} images",
+                f"captions file has {len(captions)} lines but scan found "
+                f"{len(paths)} images",
                 err=True,
             )
         captions = captions[: len(paths)]
@@ -100,12 +116,10 @@ def precompute(
         num_workers=workers,
     )
 
-    from bucketsampler.cache.vae_adapters.sd import SDVAEEncoder
-
     encoder = SDVAEEncoder(
         model_id=vae,
         device=device,
-        dtype=_parse_dtype(dtype),
+        dtype=_parse_dtype(dtype, torch),
     )
 
     typer.echo(
@@ -117,7 +131,7 @@ def precompute(
         encoder,
         output_dir=output,
         batch_size=batch_size,
-        dtype=_parse_dtype(dtype),
+        dtype=_parse_dtype(dtype, torch),
         progress_callback=_progress_callback(),
     )
     typer.echo("")
@@ -129,18 +143,20 @@ def precompute(
     sys.stdout.flush()
 
 
-def _parse_dtype(name: str) -> torch.dtype:
+def _parse_dtype(name: str, torch_mod: Any) -> Any:
     mapping = {
-        "float32": torch.float32,
-        "fp32": torch.float32,
-        "float16": torch.float16,
-        "fp16": torch.float16,
-        "bfloat16": torch.bfloat16,
-        "bf16": torch.bfloat16,
+        "float32": torch_mod.float32,
+        "fp32": torch_mod.float32,
+        "float16": torch_mod.float16,
+        "fp16": torch_mod.float16,
+        "bfloat16": torch_mod.bfloat16,
+        "bf16": torch_mod.bfloat16,
     }
     key = name.lower()
     if key not in mapping:
-        raise typer.BadParameter(f"unknown dtype {name!r}; choose one of {sorted(mapping)}")
+        raise typer.BadParameter(
+            f"unknown dtype {name!r}; choose one of {sorted(mapping)}"
+        )
     return mapping[key]
 
 
