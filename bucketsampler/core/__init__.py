@@ -13,6 +13,12 @@ from bucketsampler.core.assignment import (
     log_ar_distance,
     resize_to_bucket_dims,
 )
+from bucketsampler.core.auto_bucket import (
+    AutoBucketResult,
+    AutoBuckets,
+    bucket_set_to_toml,
+    generate_buckets,
+)
 from bucketsampler.core.bucket import Bucket, BucketSet
 from bucketsampler.core.stats import (
     aspect_ratio_summary,
@@ -23,6 +29,8 @@ from bucketsampler.core.stats import (
 from bucketsampler.core.strategies import FixedBuckets, Strategy
 
 __all__ = [
+    "AutoBucketResult",
+    "AutoBuckets",
     "Bucket",
     "BucketSet",
     "FixedBuckets",
@@ -32,8 +40,10 @@ __all__ = [
     "assign_many_indices",
     "best_bucket",
     "bucket_distribution",
+    "bucket_set_to_toml",
     "crop_loss",
     "crop_loss_summary",
+    "generate_buckets",
     "log_ar_distance",
     "resize_to_bucket_dims",
     "underutilized_buckets",

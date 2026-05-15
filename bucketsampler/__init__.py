@@ -36,6 +36,12 @@ from bucketsampler.core.assignment import (
     log_ar_distance,
     resize_to_bucket_dims,
 )
+from bucketsampler.core.auto_bucket import (
+    AutoBucketResult,
+    AutoBuckets,
+    bucket_set_to_toml,
+    generate_buckets,
+)
 from bucketsampler.core.bucket import Bucket, BucketSet
 from bucketsampler.core.stats import (
     AspectRatioSummary,
@@ -91,6 +97,8 @@ def __getattr__(name: str) -> Any:
 
 __all__ = [
     "AspectRatioSummary",
+    "AutoBucketResult",
+    "AutoBuckets",
     "Bucket",
     "BucketBatchSampler",
     "BucketResize",
@@ -112,8 +120,10 @@ __all__ = [
     "assign_many_indices",
     "best_bucket",
     "bucket_distribution",
+    "bucket_set_to_toml",
     "crop_loss",
     "crop_loss_summary",
+    "generate_buckets",
     "list_presets",
     "load_from_json",
     "load_from_toml",
